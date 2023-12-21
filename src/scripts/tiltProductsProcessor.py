@@ -63,7 +63,7 @@ class tiltProductsProcessor():
         # instantiate a UUID column with all 1's
         dataframe.loc[:, "UUID"] = 1
         # create a unique product_id column using UUID package that creates a unique identifier
-        dataframe.loc[:, "product_id"] = dataframe.groupby("products_and_services").UUID.transform(lambda g: uuid.uuid4())
+        dataframe.loc[:, "products_id"] = dataframe.groupby("products_and_services").UUID.transform(lambda g: uuid.uuid4())
         # drop the UUID column as its not needed anymore
         dataframe.drop("UUID", axis=1, inplace=True)
         return dataframe
