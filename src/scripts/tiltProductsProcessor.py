@@ -1,8 +1,10 @@
-import glob
 import pandas as pd
+import numpy as np
+import glob
 import os
 import csv
 import uuid
+
 
 class tiltProductsProcessor():
     """
@@ -74,10 +76,11 @@ class tiltProductsProcessor():
         # split the products_and_services column into a list of strings
         splitted_df['products_and_services'] = splitted_df['products_and_services'].str.split('|')
         # explode the products_and_services column into multiple rows
-        splitted_df = splitted_df.explode('products_and_services')
+        splitted_df = splitted_df.explode('products_and_services')  
+        # replace any empty strings with a null value
+        splitted_df["products_and_services"] = splitted_df["products_and_services"].replace("", np.nan)
         # drop any rows with a null value in the products_and_services column
-        splitted_df = splitted_df.dropna(subset=['products_and_services'])
-        # reset the index
+        splitted_df.dropna(subset=['products_and_services'], inplace=True)
         splitted_df = splitted_df.reset_index(drop=True)
         # return the dataframe
         return splitted_df[["products_and_services"]].loc[1:]
@@ -85,5 +88,3 @@ class tiltProductsProcessor():
     def write_CSV(self, dataframe, filename):
         # write the dataframe to a csv file given the path to which it should be written
         dataframe.to_csv(filename, index=False)
-    
-    
