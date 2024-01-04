@@ -32,7 +32,8 @@ class tiltProductsProcessor():
         df_list = []
         for file in files:
             # create a csv reader that will read all the files, specifying the delimiter and the quotation character to make sure that the fields are parsed correctly
-            spamreader = csv.reader(open(file, encoding='utf-8', errors='ignore'), delimiter=';',  quotechar="~")
+            spamreader = csv.reader(open(file, encoding='utf-8', errors='ignore'), delimiter=';',  quotechar="~") # this is only meant for ; separated files
+            #spamreader = csv.reader(open(file, encoding='utf-8', errors='ignore'), delimiter=',')
             # convert output of the csv reader into a list of lists
             df = list(spamreader)
             # create a pandas dataframe from the list of lists in which the first row is the header
@@ -40,7 +41,9 @@ class tiltProductsProcessor():
             # add this dataframe to the list of dataframes
             df_list.append(df) 
         # merge the dataframes into a single dataframe
-        df = pd.concat(df_list, ignore_index=True)
+        df = df_list[0]
+        if len(df_list) > 1:
+            df = pd.concat(df_list[1:], ignore_index=True)
         # return the dataframe
         return df
 
@@ -80,9 +83,16 @@ class tiltProductsProcessor():
         # drop any rows with a null value in the products_and_services column
         splitted_df.dropna(subset=['products_and_services'], inplace=True)
         splitted_df = splitted_df.reset_index(drop=True)
+        # remove whitespaces from products_and_services column
+        splitted_df["products_and_services"] = splitted_df["products_and_services"].str.strip()
         # return the dataframe
         return splitted_df[["products_and_services"]].loc[1:]
 
     def write_CSV(self, dataframe, filename):
         # write the dataframe to a csv file given the path to which it should be written
         dataframe.to_csv(filename, index=False)
+
+# Run scraper
+if __name__ == "__main__":
+    # Main execution
+    tiltProductsProcessor("../data/example_data/input/tiltItalyData/tiltEP/").processing_df("../data/example_data/input/tilt_italy_products_and_services_unprocessed.csv")
