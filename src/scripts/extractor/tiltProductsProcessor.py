@@ -21,8 +21,9 @@ class tiltProductsProcessor():
         write_CSV: write the dataframe to a csv file
     """
 
-    def __init__(self, directory):
+    def __init__(self, directory, used_delimiter):
         self.directory = directory 
+        self.used_delimiter = used_delimiter
         self.df = self.load_files() # the singular dataframe which contains all the data from the csv files
 
     def load_files(self):
@@ -31,9 +32,11 @@ class tiltProductsProcessor():
         # create a list in which the panda dataframes will be stored
         df_list = []
         for file in files:
+            print(1)
             # create a csv reader that will read all the files, specifying the delimiter and the quotation character to make sure that the fields are parsed correctly
-            spamreader = csv.reader(open(file, encoding='utf-8', errors='ignore'), delimiter=';',  quotechar="~") # this is only meant for ; separated files
-            #spamreader = csv.reader(open(file, encoding='utf-8', errors='ignore'), delimiter=',')
+            spamreader = csv.reader(open(file, encoding='utf-8', errors='ignore'), delimiter=',')
+            if self.used_delimiter == ";":
+                spamreader = csv.reader(open(file, encoding='utf-8', errors='ignore'), delimiter=';',  quotechar="~")
             # convert output of the csv reader into a list of lists
             df = list(spamreader)
             # create a pandas dataframe from the list of lists in which the first row is the header
@@ -91,8 +94,3 @@ class tiltProductsProcessor():
     def write_CSV(self, dataframe, filename):
         # write the dataframe to a csv file given the path to which it should be written
         dataframe.to_csv(filename, index=False)
-
-# Run scraper
-if __name__ == "__main__":
-    # Main execution
-    tiltProductsProcessor("../data/example_data/input/tiltItalyData/tiltEP/").processing_df("../data/example_data/input/tilt_italy_products_and_services_unprocessed.csv")
