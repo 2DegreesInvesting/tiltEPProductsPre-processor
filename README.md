@@ -30,14 +30,18 @@ To create a conda environment, Anaconda or Miniconda needs to be installed. This
 Once either of these have been installed, a Conda environment can be created through the following command.
 
 ```` Shell
-$ conda create -n ${name of your enviroment} python=${specify python version}
+conda create -n ${name of your enviroment} python=${specify python version}
 ````
 For the development of this repository, Python version 3.10 was used. This might take a couple of minutes but once that is completed, the environment can be activated by running the following command:
 
 ```` Shell
-$ conda activate ${name of the enviroment you just created}
+conda activate ${name of the enviroment you just created}
 ````
-Voila! You succesfully created the Conda virtual environment in which you will operate!
+Voila! You succesfully created the Conda virtual environment in which you will operate! But before we continue, we will configure the environment variables as one of the packages we import makes use of TensorFlow, which likes to spit out a lot of warnings that we are quite frankly not interested in! So to get rid of those, there is a YAML configuration file that pre-configures certain variables in the Conda environment to supress the warnings that are raised. To import this configuration file into your newly created environment, you can run the following command in the terminal:
+
+```` Shell
+conda env update --file environment.yml 
+````
 
 ### Install required packages
 The scripts created for the pre-processing depend on specific packages for operation. These packages are listed in the  `requirements.txt` file. These can all be easily installed by running the following command in your environment terminal:
