@@ -1,18 +1,18 @@
 from utils import * # our helper functions are stored here
 import pandas as pd
 
-
 class tiltPreProcessor():
 
     def __init__(self, data_path, write_path) :
         self.data_path = data_path
         self.write_path = write_path
         # required input files
-        self.ep_catalogue= "../../data/example_data/input/scraped_data/scraped_EP_products_catalogue.csv"
-        self.dedup_settings_file = '../../dedupe_files/dedup_learned_settings'
-        self.dedup_training_file = '../../dedupe_files/dedup_training.json'
-        self.rl_settings_file = '../../dedupe_files/record_linkage_learned_settings'
-        self.rl_training_file = '../../dedupe_files/record_linkage_training.json'
+        
+        self.ep_catalogue= "src/data/example_data/input/scraped_data/scraped_EP_products_catalogue.csv"
+        self.dedup_settings_file = 'src/dedupe_files/dedup_learned_settings'
+        self.dedup_training_file = 'src/dedupe_files/dedup_training.json'
+        self.rl_settings_file = 'src/dedupe_files/record_linkage_learned_settings'
+        self.rl_training_file = 'src/dedupe_files/record_linkage_training.json'
                 
 
     def pre_process(self):
