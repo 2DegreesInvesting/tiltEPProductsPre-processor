@@ -32,8 +32,7 @@ Once either of these have been installed, a Conda environment can be created thr
 ```` Shell
 $ conda create -n ${name of your enviroment} python=${specify python version}
 ````
-
-This might take a couple of minutes but once that is completed, the environment can be activated by running the following command:
+For the development of this repository, Python version 3.10 was used. This might take a couple of minutes but once that is completed, the environment can be activated by running the following command:
 
 ```` Shell
 $ conda activate ${name of the enviroment you just created}
@@ -43,7 +42,7 @@ Voila! You succesfully created the Conda virtual environment in which you will o
 ### Install required packages
 The scripts created for the pre-processing depend on specific packages for operation. These packages are listed in the  `requirements.txt` file. These can all be easily installed by running the following command in your environment terminal:
 ```` Shell
-$ pip install -r requirements.txt
+pip install -r src/scripts/requirements.txt
 ````
 
 
@@ -59,9 +58,9 @@ The pre-processing can be executed as either separate steps through a notebook t
 ### Notebook execution
 Very simple. Just go to the [following directory](https://github.com/2DegreesInvesting/tiltEPProductsPre-processor/tree/a02feccf1c88ac027911f79106e8c58f6ab1aa3d/src/scripts/dedup) and run each of the notebooks. The notebooks make use of the scraped and prepared tilt data that is store in the following [directory](https://github.com/2DegreesInvesting/tiltEPProductsPre-processor/tree/f156280f7f8e54610b6188420b2860492cfdac53/src/data/example_data/input).
 ### Python script pipeline execution
-To run the pre-processing pipeline as a command line script, the following command can be executed in the terminal after the user navigated to the right directory:
+To run the pre-processing pipeline as a command line script, the following command can be executed in the terminal assuming the user is still in the root directory:
 ```` Shell
-$ python run_pre-processor.py
+python src/scripts/dedup/run_pre-processor.py
 ````
 
 A file dialog will pop up after a while (takes 20 seconds at most) in which you can select one or multiple files you wish to have processed. It might be that the pop up window does not immediately appear. Simply using ALT+TAB will show you all your open programs and the you will then also see a program called "Open" which is the dialog and should looks as follows:
