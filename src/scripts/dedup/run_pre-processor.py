@@ -1,10 +1,9 @@
 from tiltPreProcessor import tiltPreProcessor
 from tkinter import filedialog as fd
-import argparse
 import os
 
 # run the tiltPreProcessor.py script
-if __name__ == "__main__":
+if __name__ == "__main__":  
     print('Select files to process (multiple files can be selected). Loading file dialog...')
     filenames = fd.askopenfilenames()
     print("{} file(s) selected".format(len(filenames)))

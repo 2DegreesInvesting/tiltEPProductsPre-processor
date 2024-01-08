@@ -1,5 +1,7 @@
 from utils import * # our helper functions are stored here
 import pandas as pd
+import logging
+import os
 
 class tiltPreProcessor():
 
@@ -12,10 +14,9 @@ class tiltPreProcessor():
         self.dedup_settings_file = 'src/dedupe_files/dedup_learned_settings'
         self.dedup_training_file = 'src/dedupe_files/dedup_training.json'
         self.rl_settings_file = 'src/dedupe_files/record_linkage_learned_settings'
-        self.rl_training_file = 'src/dedupe_files/record_linkage_training.json'
-                
+        self.rl_training_file = 'src/dedupe_files/record_linkage_training.json'               
 
-    def pre_process(self):
+    def pre_process(self): 
         # read in data as Pandas dataframe
         dataframe = pd.read_csv(self.data_path)
 

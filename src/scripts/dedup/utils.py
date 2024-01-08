@@ -1,5 +1,4 @@
 from langdetect import detect_langs, DetectorFactory
-from transformers import pipeline
 from googletrans import Translator
 from unidecode import unidecode
 from textblob import TextBlob
@@ -7,18 +6,20 @@ from tqdm import tqdm
 import pandas as pd
 import numpy as np
 import datetime
-import time
-import spacy
+import logging
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
 import dedupe
+import spacy
+import time
 import os
 import re
+from transformers import pipeline
 
 tqdm.pandas() # to show progress_apply progress bar
 
 nlp = spacy.load('en_core_web_sm') 
 
 language_detector = pipeline("text-classification", model="papluca/xlm-roberta-base-language-detection") # this model is 1.1 gigabyte so it will take around 5 mins to download it
-TF_ENABLE_ONEDNN_OPTS=0 # to avoid a warning
 DetectorFactory.seed = 0 # to get deterministic results
 
 translator = Translator()
