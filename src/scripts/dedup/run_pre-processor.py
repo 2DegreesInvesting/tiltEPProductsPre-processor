@@ -11,7 +11,7 @@ if __name__ == "__main__":
         print("Processing {}".format(os.path.basename(filename)))
         src = filename
         dest = str(os.path.join(os.path.dirname(os.path.dirname(filename)), "output/preprocessed_" + 
-                                os.path.basename(filename)).replace("_unprocessed", "")).replace("\\", "/")      
+                                os.path.basename(filename))).replace("\\", "/")      
         print(dest)
         tiltPreProcessor(src, dest).pre_process()
         print("Done\n")
