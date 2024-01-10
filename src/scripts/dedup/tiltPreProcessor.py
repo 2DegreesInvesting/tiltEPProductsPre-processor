@@ -30,9 +30,21 @@ class tiltPreProcessor():
         print ("------------ PREPROCESSING STEP {} ------------".format(3))
         deduplicated_and_linked_df = dedup_and_link(translated_df, self.ep_catalogue, self.dedup_settings_file, self.dedup_training_file, self.rl_settings_file, self.rl_training_file)
 
+        # if write_path string contains the word base then we are also merging it with the manual clustered data
+        if 'base' in self.write_path:
+            # read in manual clustered datax 
+            manual_clustered_df = pd.read_csv('src/data/example_data/input/manual_clustering.csv')
+            # merge the two dataframes on products_id
+            deduplicated_and_linked_df = pd.merge(manual_clustered_df, deduplicated_and_linked_df, on='products_id')
+            # drop cluster_id, clustered_delimited_id,delimited_id
+            deduplicated_and_linked_df = deduplicated_and_linked_df.drop(['clustered_id', 'clustered_delimited_id', 'delimited_id', 'delimited_products_id'], axis=1).rename(columns = {"clustered": "manual_processed_products_and_services"})
+            # reorder columns
+            deduplicated_and_linked_df = deduplicated_and_linked_df[['products_id','raw_products_and_services', 'manual_processed_products_and_services', 'processed_products_and_services', 'linked_EP_products_id','linked_EP_products_and_services']]
         # write to csv
         print('Writing results to "{}"'.format(self.write_path))
         deduplicated_and_linked_df.to_csv(self.write_path, index=False)
+
+
 
 
 

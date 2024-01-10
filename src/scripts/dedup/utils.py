@@ -200,7 +200,7 @@ def translate_df(df):
     
     # replace empty values in translated column with the typo corrected text
     df["translated_text"].fillna(df["typo_corrected"], inplace=True)
-    translated_df = df.copy().drop(columns=["typo_corrected", "language (ISO-code)", "products_and_services"]).rename(columns={"translated_text": "products_and_services"})
+    translated_df = df.copy().drop(columns=["typo_corrected", "language (ISO-code)"]).rename(columns={"products_and_services":"raw_products_and_services","translated_text": "products_and_services"})
     return translated_df
 
 def deduplication(file, settings, training, write = False, out = "None"):
@@ -372,7 +372,11 @@ def record_linkage(left_df, right_df, settings, training, write = False, out = "
         non_matched_products.loc[int(re.search(r"\d+", cluster[0]).group()), 'products_and_services_y'] = root_r_df.loc[int(re.search(r"\d+", cluster[1]).group()), 'products_and_services']
         non_matched_products.loc[int(re.search(r"\d+", cluster[0]).group()), 'products_id_y'] = root_r_df.loc[int(re.search(r"\d+", cluster[1]).group()), 'products_id']
     
-    merged_df = merged_df.fillna(non_matched_products).rename(columns = {"products_and_services_y": "EuroPages products_and_services", "products_id_y": "EuroPages products_id"})
+    merged_df = merged_df.fillna(non_matched_products)
+    merged_df = merged_df.rename(columns = {"products_id_x": "products_id", 
+                                                                         "products_and_services_x": "processed_products_and_services",
+                                                                         "products_id_y": "linked_EP_products_id",
+                                                                         "products_and_services_y": "linked_EP_products_and_services"})
     print("Coverage increased to {0:.2f}%".format(len(merged_df.dropna())/len(root_l_df)*100))
     print("----Finished stage 2----\n")
     if write:
