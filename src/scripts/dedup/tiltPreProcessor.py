@@ -1,7 +1,5 @@
 from utils import * # our helper functions are stored here
 import pandas as pd
-import logging
-import os
 
 class tiltPreProcessor():
 
