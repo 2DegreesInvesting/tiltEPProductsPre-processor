@@ -374,7 +374,7 @@ def record_linkage(left_df, right_df, settings, training, write = False, out = "
     
     merged_df = merged_df.fillna(non_matched_products)
     merged_df = merged_df.rename(columns = {"products_id_x": "products_id", 
-                                                                         "products_and_services_x": "processed_products_and_services",
+                                                                         "products_and_services_x": "automatic_processed_products_and_services",
                                                                          "products_id_y": "linked_EP_products_id",
                                                                          "products_and_services_y": "linked_EP_products_and_services"})
     print("Coverage increased to {0:.2f}%".format(len(merged_df.dropna())/len(root_l_df)*100))
