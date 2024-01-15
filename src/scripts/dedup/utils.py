@@ -227,7 +227,7 @@ def deduplication(file, settings, training, write = False, out = "None"):
    print("----Start of stage 1----")
    print('Preparing dedupe data ...')
    dedup_data = convert_pandas_to_dict(df, "dedup")
-
+   print(os.path.exists(settings))
    if os.path.exists(settings):
       print('Settings file found! Reading settings from "{}"'.format(settings))
       with open(settings, 'rb') as sf:
