@@ -8,11 +8,11 @@ class tiltPreProcessor():
         self.write_path = write_path
         # required input files
         
-        self.ep_catalogue= "src/data/example_data/input/scraped_data/scraped_EP_products_catalogue.csv"
-        self.dedup_settings_file = 'src/dedupe_files/dedup_learned_settings'
-        self.dedup_training_file = 'src/dedupe_files/dedup_training.json'
-        self.rl_settings_file = 'src/dedupe_files/record_linkage_learned_settings'
-        self.rl_training_file = 'src/dedupe_files/record_linkage_training.json'               
+        self.ep_catalogue= "../../data/example_data/input/scraped_data/scraped_EP_products_catalogue.csv"
+        self.dedup_settings_file = '../../dedupe_files/dedup_learned_settings'
+        self.dedup_training_file = '../../dedupe_files/dedup_training.json'
+        self.rl_settings_file = '../../dedupe_files/record_linkage_learned_settings'
+        self.rl_training_file = '../../dedupe_files/record_linkage_training.json'               
 
     def pre_process(self): 
         # read in data as Pandas dataframe
@@ -39,7 +39,7 @@ class tiltPreProcessor():
             # drop cluster_id, clustered_delimited_id,delimited_id
             deduplicated_and_linked_df = deduplicated_and_linked_df.drop(['clustered_id', 'clustered_delimited_id', 'delimited_id', 'delimited_products_id'], axis=1).rename(columns = {"clustered": "manual_processed_products_and_services"})
             # reorder columns
-            deduplicated_and_linked_df = deduplicated_and_linked_df[['products_id','raw_products_and_services', 'manual_processed_products_and_services', 'processed_products_and_services', 'linked_EP_products_id','linked_EP_products_and_services']]
+            deduplicated_and_linked_df = deduplicated_and_linked_df[['products_id','raw_products_and_services', 'manual_processed_products_and_services', 'automatic_processed_products_and_services', 'linked_EP_products_id','linked_EP_products_and_services']]
         # write to csv
         print('Writing results to "{}"'.format(self.write_path))
         deduplicated_and_linked_df.to_csv(self.write_path, index=False)
