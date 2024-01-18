@@ -6,6 +6,7 @@ import os
 if __name__ == "__main__":  
     print('Select files to process (multiple files can be selected). Loading file dialog...')
     filenames = fd.askopenfilenames()
+
     print("{} file(s) selected".format(len(filenames)))
     for filename in filenames:
         print("Processing {}".format(os.path.basename(filename)))
