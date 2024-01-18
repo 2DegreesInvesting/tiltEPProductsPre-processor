@@ -35,19 +35,19 @@ def conf_ld_detect_language(text, model="def"):
         text (str): The string for which language shall be detected.
         model (str): The model to be used for language detection. Defaults to langdetect model.
     Returns:
-        result (str): The detected language (ISO-code).
+        str: The detected language (ISO-code).
     """
     try:
         if model == "def":
             highest_conf = detect_langs(text)[0]
             return highest_conf.lang
-        else:
+        elif model == "huggingface":
             result = language_detector(text)[0]
             return str(result["label"])
     except:   
         return "ident_fail", pd.NA
     
-def typo_correction(text=""):
+def typo_correction(text="", model="def"):
     """Typo correction wrapper.
     
     Returns corrected text. In case of failure of correction the original text 
@@ -55,12 +55,15 @@ def typo_correction(text=""):
     
     Args:
         text (str): The string to be corrected.
+        model (str): The model to be used for typo correction. Defaults to textblob model.
     Returns:
-        corrected_text (str): The corrected string.
+        str: The corrected string.
     """
     try:
-        # contextualspellcheck only works for english. the same applies to textblob and the huggingface pipeline. pyspellcheck does work with different languages but requires single words as input. (aka splitted)
-        return(TextBlob(text).correct().string)
+        if model == "def":
+            return(TextBlob(text).correct().string)
+        elif model == "huggingface":
+            return(translator(text)[0]["generated_text"])
     except:
         return text
     
@@ -140,6 +143,37 @@ def seconds_conversion(seconds):
     seconds = time_delta.seconds % 60
     return (hours, minutes, seconds)
 
+def flagging_df(df_1, df_2):
+    """
+    Flagging the records that can directly be linked to the EP catalogue and prevent them from being processed
+
+    Args:
+        df_1 (pd.DataFrame): The dataframe to be filtered.
+        df_2 (pd.DataFrame): The dataframe to be used for flagging.
+    Returns:
+        flagged_df (pd.DataFrame): The dataframe with flagged records.
+    """
+    # Merge the two dataframes based on the 'products_and_services' column
+    print("Merging the two dataframes based on the 'products_and_services' column...")
+    merged_df = df_1.merge(df_2, on='products_and_services', how='inner')
+
+    # Remove ID column and rename products_id_y to linke_EP_products_id
+    merged_df = merged_df.drop(['ID', 'products_id_y'], axis=1)
+    merged_df = merged_df.rename(columns={'products_id_x': 'products_id'})
+    
+    # add column called to_process which labels the records that need to be processed
+    merged_df['to_process'] = False
+    
+    # concatentate the merged_df with the records in df_1 that arent in merged_df based of products_id
+    df_1 = df_1[~df_1['products_id'].isin(merged_df['products_id'])]
+    merged_df = pd.concat([merged_df, df_1], ignore_index=True)	
+    # replace the NaN values in the to_process column with "yes"
+    print("Flagging the columns to be processed...")
+    merged_df['to_process'] = merged_df['to_process'].fillna(True)
+
+    return merged_df
+    
+
 def typo_correct_df(df):
     """Typo correction wrapper for dataframes.
     
@@ -149,27 +183,30 @@ def typo_correct_df(df):
     Args:
         df (pd.DataFrame): The dataframe containing the text to be corrected.
     Returns:
-        corrected_df (pd.DataFrame): The dataframe with corrected text.
+        pd.DataFrame: The dataframe with corrected text.
     """
-    #df['ID'] = range(1, len(df) + 1)
-    # detect the language of the text
+    # detect the language of the text but only for the rows that do not have a value in the automatic_processed_products_and_services column
     print("Detecting the language of the text...")
-    df.loc[:, "language (ISO-code)"] = df["products_and_services"].progress_apply(lambda x: conf_ld_detect_language(x))
+    # only take rows that have a True value in the to_process column
+    to_process_df = df[df["to_process"] == True].copy()
+    # exclude to_processed_df rows from df
+    df = df[df["to_process"] == False].copy()
+    to_process_df.loc[:, "language (ISO-code)"] = to_process_df["products_and_services"].progress_apply(lambda x: conf_ld_detect_language(x, model="huggingface"))
 
     # then take subset of english texts
     print("Taking subset of English texts...")
-    english_df = df[df["language (ISO-code)"] == "en"]
+    english_df = to_process_df[to_process_df["language (ISO-code)"] == "en"]
     # exclude enlgish texts from the original df
-    df = df[df["language (ISO-code)"] != "en"]
+    to_process_df = to_process_df[to_process_df["language (ISO-code)"] != "en"]
 
     # apply typo correction to english texts
     print("Applying typo correction...")
     english_df = english_df.copy()
-    english_df.loc[:, "typo_corrected"] = english_df["products_and_services"].progress_apply(lambda x: typo_correction(x))
+    english_df.loc[:, "typo_corrected"] = english_df["products_and_services"].progress_apply(lambda x: typo_correction(x, model="huggingface"))
 
     # merge the corrected english texts with the original df
-    print("Merging the corrected english texts with the original df...\n")
-    df = pd.concat([df, english_df], ignore_index=True)
+    print("Merging the corrected english texts with the original df...")
+    df = pd.concat([to_process_df, english_df, df], ignore_index=True)
     # replace empty values in typo_corrected with the original text
     df["typo_corrected"].fillna(df["products_and_services"], inplace=True)
     return df
@@ -185,9 +222,10 @@ def translate_df(df):
     """
     # then take subset of english texts
     print("Taking subset of non-english texts...")
-    non_english_df = df[df["language (ISO-code)"] != "en"]
-    # exclude enlgish texts from the original df
-    df = df[df["language (ISO-code)"] == "en"]
+    # filter out non-english texts and text that do not have a language code
+    non_english_df = df[(df["language (ISO-code)"].isnull() == False) & (df["language (ISO-code)"] != "en")]
+    # exclude the rows from non_english_df from the original df
+    df = df[~df.index.isin(non_english_df.index)]
 
     # apply typo correction to english texts
     print("Applying translation...")
@@ -200,7 +238,7 @@ def translate_df(df):
     
     # replace empty values in translated column with the typo corrected text
     df["translated_text"].fillna(df["typo_corrected"], inplace=True)
-    translated_df = df.copy().drop(columns=["typo_corrected", "language (ISO-code)"]).rename(columns={"products_and_services":"raw_products_and_services","translated_text": "products_and_services"})
+    translated_df = df.copy().drop(columns=["typo_corrected", "language (ISO-code)", "to_process"]).rename(columns={"products_and_services":"raw_products_and_services","translated_text": "products_and_services"})
     return translated_df
 
 def deduplication(file, settings, training, write = False, out = "None"):
@@ -227,7 +265,6 @@ def deduplication(file, settings, training, write = False, out = "None"):
    print("----Start of stage 1----")
    print('Preparing dedupe data ...')
    dedup_data = convert_pandas_to_dict(df, "dedup")
-   print(os.path.exists(settings))
    if os.path.exists(settings):
       print('Settings file found! Reading settings from "{}"'.format(settings))
       with open(settings, 'rb') as sf:
