@@ -43,6 +43,8 @@ Voila! You succesfully created the Conda virtual environment in which you will o
 conda env update --file environment.yml 
 ````
 
+Once you have 
+
 ### Install required packages
 The scripts created for the pre-processing depend on specific packages for operation. These packages are listed in the  `requirements.txt` file. These can all be easily installed by running the following command in your environment terminal:
 ```` Shell
