@@ -9,7 +9,6 @@ import datetime
 import logging
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
 import dedupe
-import spacy
 import time
 import os
 import re
@@ -17,9 +16,8 @@ from transformers import pipeline
 
 tqdm.pandas() # to show progress_apply progress bar
 
-nlp = spacy.load('en_core_web_sm') 
-
 language_detector = pipeline("text-classification", model="papluca/xlm-roberta-base-language-detection") # this model is 1.1 gigabyte so it will take around 5 mins to download it
+typo_corrector = pipeline("text2text-generation", model="oliverguhr/spelling-correction-english-base", max_length=1000)
 DetectorFactory.seed = 0 # to get deterministic results
 
 translator = Translator()
@@ -63,7 +61,7 @@ def typo_correction(text="", model="def"):
         if model == "def":
             return(TextBlob(text).correct().string)
         elif model == "huggingface":
-            return(translator(text)[0]["generated_text"])
+            return(typo_corrector(text)[0]["generated_text"])
     except:
         return text
     
