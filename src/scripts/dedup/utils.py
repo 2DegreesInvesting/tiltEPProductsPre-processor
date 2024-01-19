@@ -1,5 +1,5 @@
 from langdetect import detect_langs, DetectorFactory
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 from unidecode import unidecode
 from textblob import TextBlob
 from tqdm import tqdm
@@ -20,7 +20,7 @@ language_detector = pipeline("text-classification", model="papluca/xlm-roberta-b
 typo_corrector = pipeline("text2text-generation", model="oliverguhr/spelling-correction-english-base", max_length=1000)
 DetectorFactory.seed = 0 # to get deterministic results
 
-translator = Translator()
+translator = GoogleTranslator()
 
 def conf_ld_detect_language(text, model="def"):
     """Language detection wrapper.
@@ -75,7 +75,7 @@ def translate_Google(text):
         translated_text (str): The translated string.
     """
     try:
-        translated = translator.translate(text).text
+        translated = translator.translate(text)
         return translated
     except:
         return np.nan
@@ -207,6 +207,8 @@ def typo_correct_df(df):
     df = pd.concat([to_process_df, english_df, df], ignore_index=True)
     # replace empty values in typo_corrected with the original text
     df["typo_corrected"].fillna(df["products_and_services"], inplace=True)
+    # make typo_corrected lowercase and remove all dots at the end
+    df["typo_corrected"] = df["typo_corrected"].str.lower().str.replace("\.$", "")
     return df
 
 def translate_df(df):
